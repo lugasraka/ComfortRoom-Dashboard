@@ -38,6 +38,9 @@ The goal isn’t “black-box automation,” it’s decision support you can tru
 - **Sustainability/ESG:** Show measurable improvements in comfort and energy proxies across sites.
 - **Data Engineer/Scientist:** Validate model performance (MAE, RMSE, R²) and iterate with clarity.
 
+<img width="2816" height="1536" alt="image" src="https://github.com/user-attachments/assets/c99bfdd9-41e6-410e-a312-ef1e992a82a0" />
+
+
 ---
 
 ## Status Quo vs. AI-Powered
