@@ -1,0 +1,41 @@
+# Python bytecode and caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# Logs and temporary files
+*.log
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Build and distribution artifacts
+build/
+dist/
+*.egg-info/
+site/
+coverage.xml
+.coverage
+
+# Editor/IDE settings
+.vscode/
+.idea/
+*.swp
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Node.js (in case of ancillary tooling)
+node_modules/
