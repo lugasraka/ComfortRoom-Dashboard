@@ -15,6 +15,9 @@ Turn thermostat setpoints into smart, explainable decisions that balance occupan
 - 🎛️ **Digital Twin Simulator** — Test "what-if" scenarios for individual zones
 - 📈 **Three ML Models** — Random Forest, TensorFlow NN, PyTorch NN with full metrics
 
+<img width="2540" height="1266" alt="{1A14A202-F8C6-49BD-8603-719E36199590}" src="https://github.com/user-attachments/assets/45388a33-9540-4f7b-929b-b6b6853da848" />
+
+
 ---
 
 ## Why ComfortRoom
@@ -48,6 +51,9 @@ The goal isn’t “black-box automation,” it’s decision support you can tru
 - Optimization recommends a setpoint that balances comfort vs. energy
 - Transparent metrics, explainable analytics, tunable priorities (sliders + presets)
 
+<img width="2217" height="931" alt="{1A03939D-5B8E-4922-B2AC-3C0E4516257B}" src="https://github.com/user-attachments/assets/10db3599-d980-4111-8308-d577b1df88fe" />
+
+
 ---
 
 ## What You Get
@@ -62,12 +68,19 @@ The goal isn’t “black-box automation,” it’s decision support you can tru
   - Energy savings analysis with real ML model predictions
   - Comfort vs Energy tradeoff visualization by building
   - **Deterministic results:** Fixed portfolio data ensures consistent analytics every time
+ 
+<img width="2166" height="965" alt="{A92AFE9A-CD45-4060-A18E-7EE5BB5DAFBE}" src="https://github.com/user-attachments/assets/9143eb0d-1c95-4fa5-ac65-1c5df6a25f37" />
+
 - **ML Models Documentation:** Comprehensive model reference with fast-loading design:
   - Quick comparison dashboard showing accuracy, speed, and availability
   - Performance metrics table (MAE, R², training times)
   - Collapsible accordions for detailed model documentation (expand on demand)
   - Three models: Random Forest, TensorFlow NN, PyTorch NN
   - Optimized loading: Heavy content deferred until user expands sections
+
+<img width="2229" height="709" alt="{8F0DDE2B-E0EF-43EF-86B2-C5611049F3BE}" src="https://github.com/user-attachments/assets/f6eaf61a-bafd-43b6-a7aa-e28aae2486ac" />
+
+
 - **Sustainability of AI:** Complete carbon footprint analysis of AI deployment:
   - Training emissions: Includes full ML pipeline (preprocessing, cross-validation, hyperparameter tuning)
   - Inference emissions: Always-on server power consumption with realistic latency
@@ -75,10 +88,15 @@ The goal isn’t “black-box automation,” it’s decision support you can tru
   - Scenario comparison: Small (3 buildings) vs Large (1000 buildings) enterprise deployments
   - Shows how emissions scale: Infrastructure-dominated for small deployments, compute-dominated for large scale
   - Positive carbon ROI: Energy savings far outweigh AI operational emissions
+
+<img width="2205" height="935" alt="{9E797C1B-929D-4035-B9B9-63A183E88E42}" src="https://github.com/user-attachments/assets/ca8cb226-a51c-4dd6-aaad-cedd4dc566e6" />
+
+ 
 - **Explainable AI Analytics:** Transparent methodology showing optimization strategies and decision logic.
 - **Model Metrics:** Three models with MAE, RMSE, and R² for both temperature and energy predictions.
 - **Multi-Output Architecture:** All models predict temperature AND energy simultaneously from the same inputs.
 - **Portfolio View:** Scale across buildings/zones to prioritize where AI helps most.
+
 
 ---
 
