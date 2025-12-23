@@ -71,6 +71,8 @@ The goal isn’t “black-box automation,” it’s decision support you can tru
  
 <img width="2166" height="965" alt="{A92AFE9A-CD45-4060-A18E-7EE5BB5DAFBE}" src="https://github.com/user-attachments/assets/9143eb0d-1c95-4fa5-ac65-1c5df6a25f37" />
 
+---
+
 - **ML Models Documentation:** Comprehensive model reference with fast-loading design:
   - Quick comparison dashboard showing accuracy, speed, and availability
   - Performance metrics table (MAE, R², training times)
@@ -80,6 +82,7 @@ The goal isn’t “black-box automation,” it’s decision support you can tru
 
 <img width="2229" height="709" alt="{8F0DDE2B-E0EF-43EF-86B2-C5611049F3BE}" src="https://github.com/user-attachments/assets/f6eaf61a-bafd-43b6-a7aa-e28aae2486ac" />
 
+---
 
 - **Sustainability of AI:** Complete carbon footprint analysis of AI deployment with transparent methodology:
   - **Training emissions:** Includes full ML pipeline (preprocessing, cross-validation, hyperparameter tuning) using [ML CO2 Impact](https://mlco2.github.io/impact/) calculator methodology
@@ -92,6 +95,7 @@ The goal isn’t “black-box automation,” it’s decision support you can tru
 
 <img width="2205" height="935" alt="{9E797C1B-929D-4035-B9B9-63A183E88E42}" src="https://github.com/user-attachments/assets/ca8cb226-a51c-4dd6-aaad-cedd4dc566e6" />
 
+---
  
 - **Explainable AI Analytics:** Transparent methodology showing optimization strategies and decision logic.
 - **Model Metrics:** Three models with MAE, RMSE, and R² for both temperature and energy predictions.
