@@ -7,6 +7,12 @@ Turn thermostat setpoints into smart, explainable decisions that balance occupan
 [![ML Models](https://img.shields.io/badge/ML-Random%20Forest%20%7C%20TensorFlow%20%7C%20PyTorch-green.svg)](https://github.com)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+## 🚀 [**Try the Live Demo**](https://7a2b294d-8130-4503-8e04-d2e73333da12.plotly.app)
+
+Test the app directly in your browser — no installation required!
+
+---
+
 **Key Features:**
 - 🏢 **Portfolio Management** — Monitor comfort and energy across multiple buildings
 - 🤖 **Smart Win-Win Optimization** — Only makes changes that genuinely improve outcomes
