@@ -149,12 +149,14 @@ def _load_training_data(csv_path: str = 'training_data.csv'):
         print(f"  For better performance, run 'build_training_data.ipynb' to generate the CSV file.")
         return _generate_training_data_fallback()
 
-def train_models_rf():
+def train_models_rf(X=None, y=None):
     """
     Train Random Forest with multi-output support (predicts both temp and energy).
     RF natively supports multi-output regression.
     """
-    X, y = _load_training_data()
+    # Use pre-loaded global data if not provided
+    if X is None or y is None:
+        X, y = _GLOBAL_TRAINING_X, _GLOBAL_TRAINING_Y
     
     # Scale inputs
     scaler_X = StandardScaler()
@@ -191,14 +193,16 @@ def train_models_rf():
     }
     return rf_model, scaler_X, metrics
 
-def train_models_nn():
+def train_models_nn(X=None, y=None):
     """
     Train TensorFlow Neural Network with multi-output (2 output nodes for temp and energy).
     """
     if not TF_AVAILABLE:
         return None, None, {'error': 'TensorFlow not available'}
 
-    X, y = _load_training_data()
+    # Use pre-loaded global data if not provided
+    if X is None or y is None:
+        X, y = _GLOBAL_TRAINING_X, _GLOBAL_TRAINING_Y
     
     # Scale inputs
     scaler_X = StandardScaler()
@@ -243,7 +247,7 @@ def train_models_nn():
     }
     return tf_model, scaler_X, metrics
 
-def train_models_pt():
+def train_models_pt(X=None, y=None):
     """
     Train PyTorch Neural Network with multi-output (2 output nodes for temp and energy).
     Uses mini-batch training with DataLoader.
@@ -251,7 +255,9 @@ def train_models_pt():
     if not TORCH_AVAILABLE:
         return None, None, {'error': 'PyTorch not available'}
 
-    X, y = _load_training_data()
+    # Use pre-loaded global data if not provided
+    if X is None or y is None:
+        X, y = _GLOBAL_TRAINING_X, _GLOBAL_TRAINING_Y
     
     # Scale inputs
     scaler_X = StandardScaler()
@@ -329,6 +335,11 @@ def train_models_pt():
 # Initialize System
 BUILDINGS_LIST, PORTFOLIO_DB = generate_portfolio()
 
+# Pre-load training data once (shared across all models)
+print("📊 Pre-loading training data...")
+_GLOBAL_TRAINING_X, _GLOBAL_TRAINING_Y = _load_training_data()
+print(f"✓ Training data loaded: {_GLOBAL_TRAINING_X.shape[0]} samples")
+
 # Global model registry and training status
 MODEL_REGISTRY = {
     'RF': {'model': None, 'scaler': None, 'metrics': None},
@@ -337,6 +348,10 @@ MODEL_REGISTRY = {
 }
 MODELS_TRAINING = True
 MODELS_READY = threading.Event()
+
+# Optimization constants
+CANDIDATE_SETPOINTS = np.array([16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26])
+COMFORT_MIN, COMFORT_MAX = 21.0, 23.0
 
 # Defer model training to background to avoid blocking app startup
 def _train_rf_background():
@@ -493,6 +508,10 @@ app.layout = html.Div([sidebar, content])
 # Global cache for savings calculation (avoids recalculating on every page load)
 _CACHED_SAVINGS_PCT = None
 
+# Global cache for CO2 calculations (avoids expensive recalculation)
+_CACHED_CO2_DATA = None
+_CACHED_CO2_TIMESTAMP = None
+
 def calculate_actual_savings_from_demo():
     """
     Calculate actual energy savings percentage from the demo data.
@@ -505,13 +524,12 @@ def calculate_actual_savings_from_demo():
     # Return cached value if already calculated
     if _CACHED_SAVINGS_PCT is not None:
         return _CACHED_SAVINGS_PCT
-    
-    COMFORT_MIN, COMFORT_MAX = 21.0, 23.0
+
     # Baseline: Traditional HVAC maintains 22°C for all zones (wasteful!)
     BASELINE_SETPOINT_OCCUPIED = 22.0
     BASELINE_SETPOINT_UNOCCUPIED = 22.0
     # AI uses expanded setpoint range (matching AI Impact Analytics)
-    candidate_setpoints = np.array([16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26])
+    candidate_setpoints = CANDIDATE_SETPOINTS
     
     # Use Random Forest model for calculation (fastest)
     model_entry = MODEL_REGISTRY.get('RF')
@@ -528,21 +546,45 @@ def calculate_actual_savings_from_demo():
         'Logistics - Milan': 16.5
     }
     
-    total_baseline_energy = 0
-    total_optimized_energy = 0
-    
+    # PERFORMANCE OPTIMIZATION: Batch all baseline predictions at once
+    # Collect all zone inputs first
+    all_zones = []
     for building_name, building_data in PORTFOLIO_DB.items():
         outdoor_temp = outdoor_temps.get(building_name, 15.0)
         for zone in building_data['zones']:
             prev_temp = zone['temp']
             is_occupied = 1 if zone['occupied'] else 0
-            
-            # Baseline prediction (traditional HVAC: 22°C for all zones)
             baseline_setpoint = BASELINE_SETPOINT_OCCUPIED if is_occupied else BASELINE_SETPOINT_UNOCCUPIED
-            input_base = scaler.transform([[outdoor_temp, prev_temp, baseline_setpoint, is_occupied]])
-            pred_base = model.predict(input_base)[0]
+            all_zones.append({
+                'outdoor_temp': outdoor_temp,
+                'prev_temp': prev_temp,
+                'is_occupied': is_occupied,
+                'baseline_setpoint': baseline_setpoint
+            })
+
+    # Batch predict all baselines at once (15 zones in 1 call instead of 15 calls)
+    baseline_inputs = np.array([
+        [z['outdoor_temp'], z['prev_temp'], z['baseline_setpoint'], z['is_occupied']]
+        for z in all_zones
+    ])
+    baseline_inputs_scaled = scaler.transform(baseline_inputs)
+    baseline_preds = model.predict(baseline_inputs_scaled)  # ONE batch call
+
+    total_baseline_energy = 0
+    total_optimized_energy = 0
+
+    zone_idx = 0
+    for building_name, building_data in PORTFOLIO_DB.items():
+        outdoor_temp = outdoor_temps.get(building_name, 15.0)
+        for zone in building_data['zones']:
+            prev_temp = zone['temp']
+            is_occupied = 1 if zone['occupied'] else 0
+
+            # Get baseline prediction from batch results
+            pred_base = baseline_preds[zone_idx]
             baseline_energy = pred_base[1]
-            
+            zone_idx += 1
+
             # AI Optimization: Test all candidate setpoints
             candidate_inputs = np.array([
                 [outdoor_temp, prev_temp, sp, is_occupied] for sp in candidate_setpoints
@@ -612,7 +654,7 @@ def calculate_co2_impacts():
     """
     Calculate CO2 emissions for AI models across different lifecycle phases.
     Creates three realistic deployment scenarios to show how emissions scale.
-    
+
     Sources and assumptions:
     - Training: Based on ML CO2 Impact calculator (mlco2.github.io)
     - Inference: Power consumption per prediction * carbon intensity
@@ -620,7 +662,14 @@ def calculate_co2_impacts():
     - Energy Savings: Actual savings from demo optimization (calculated dynamically)
     - Carbon intensity: Average 475 g CO2/kWh (global grid mix)
     """
-    
+    global _CACHED_CO2_DATA, _CACHED_CO2_TIMESTAMP
+
+    # Return cached value if less than 5 minutes old (300 seconds)
+    if _CACHED_CO2_DATA is not None and _CACHED_CO2_TIMESTAMP is not None:
+        age_seconds = time.time() - _CACHED_CO2_TIMESTAMP
+        if age_seconds < 300:
+            return _CACHED_CO2_DATA
+
     # Carbon intensity (g CO2 per kWh) - global average grid mix
     CARBON_INTENSITY = 475  # g CO2/kWh
     
@@ -803,9 +852,13 @@ def calculate_co2_impacts():
         'carbon_intensity': CARBON_INTENSITY,
         'actual_savings_pct': actual_savings_pct * 100  # Convert to percentage for display
     }
-    
+
     results['_scenarios'] = scenarios
-    
+
+    # Cache the results with timestamp
+    _CACHED_CO2_DATA = results
+    _CACHED_CO2_TIMESTAMP = time.time()
+
     return results
 
 # ==========================================
@@ -1789,13 +1842,12 @@ def render_page(view_mode, selected_building, selected_zone_name, selected_model
         np.random.seed(42)
         
         # Configuration (from notebook)
-        COMFORT_MIN, COMFORT_MAX = 21.0, 23.0
         PENALTY_WEIGHT = 10.0  # High cost for comfort violations
         # Baseline: Traditional HVAC strategy
         BASELINE_SETPOINT_OCCUPIED = 22.0    # Comfort setpoint when occupied
         BASELINE_SETPOINT_UNOCCUPIED = 22.0  # Traditional systems often maintain same temp 24/7 (wasteful!)
         # Expanded setpoint range: includes energy-saving extremes for unoccupied zones
-        candidate_setpoints = np.array([16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26])
+        candidate_setpoints = CANDIDATE_SETPOINTS
         
         # Get selected model from dropdown
         model_entry = MODEL_REGISTRY.get(selected_model, MODEL_REGISTRY['RF'])
