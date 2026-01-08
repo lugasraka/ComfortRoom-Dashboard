@@ -92,14 +92,17 @@ The goal isn’t “black-box automation,” it’s decision support you can tru
 
 ---
 
-- **Sustainability of AI:** Complete carbon footprint analysis of AI deployment with transparent methodology:
-  - **Training emissions:** Includes full ML pipeline (preprocessing, cross-validation, hyperparameter tuning) using [ML CO2 Impact](https://mlco2.github.io/impact/) calculator methodology
-  - **Inference emissions:** Always-on server power consumption (50W-400W) with realistic latency based on [Cloud Carbon Footprint](https://www.cloudcarbonfootprint.org/) standards
-  - **Infrastructure emissions:** Incremental hardware allocation (5-10% of server capacity) following [GHG Protocol ICT Sector Guidance](https://ghgprotocol.org/ict-sector-guidance)
-  - **Scenario comparison:** Small (3 buildings) vs Large (1000 buildings) enterprise deployments with detailed scaling analysis
-  - **Emission scaling patterns:** Infrastructure-dominated for small deployments (~97%), compute-intensive for large scale (~66%)
-  - **Positive carbon ROI:** Energy savings (20-40% reduction in HVAC energy) far outweigh AI operational emissions (typically <1% of savings)
-  - **Data sources:** [CodeCarbon](https://codecarbon.io/), [Green Algorithms](https://www.green-algorithms.org/), EPA grid emission factors
+- **Sustainability of AI:** Complete carbon footprint analysis with regional sensitivity and validation:
+  - **Regional Grid Analysis:** 8 power grid profiles (Nordic 50 g/kWh to India 900 g/kWh) showing ROI varies 3-18× by region
+  - **Hardware-Specific Embodied Carbon:** CPU servers (1,500 kg), GPU servers (3,000 kg), Edge devices (400 kg) with proper lifecycle allocation
+  - **Alternative Approaches Comparison:** AI (20-25% savings) vs Manual Tuning (8%) vs Simple Scheduling (15%) with cost analysis
+  - **Training emissions:** Full ML pipeline using [ML CO2 Impact](https://mlco2.github.io/impact/) methodology with regional grid data
+  - **Inference emissions:** Always-on server power (50W-400W) based on [SPECpower](https://www.spec.org/power_ssj2008/) benchmarks
+  - **Infrastructure emissions:** Incremental allocation (5-10%) following [GHG Protocol Scope 3](https://ghgprotocol.org/scope-3-technical-calculation-guidance)
+  - **Uncertainty Quantification:** ±15-25% ranges on all metrics with documented limitations
+  - **Scenario comparison:** Small (3 buildings) vs Large (1000 buildings) with detailed scaling analysis
+  - **Positive carbon ROI:** Energy savings outweigh AI emissions by 50-100× across all regions
+  - **Data sources:** IEA (2024), EPA eGRID (2024), Dell/Apple/Google carbon footprint reports
 
 <img width="2205" height="935" alt="{9E797C1B-929D-4035-B9B9-63A183E88E42}" src="https://github.com/user-attachments/assets/ca8cb226-a51c-4dd6-aaad-cedd4dc566e6" />
 
@@ -187,11 +190,12 @@ pip install -r requirements.txt
 python app.py
 ```
 **What's New in Latest Version:**
+- 🌍 **Regional Carbon Sensitivity:** 8 power grid profiles showing 3-18× ROI variation by region (Nordic to India)
+- 🔧 **Hardware-Specific Embodied Carbon:** CPU/GPU/Edge device emissions with manufacturer data (Dell, Apple, Google)
+- ⚖️ **Alternative Approaches Comparison:** AI vs Manual Tuning vs Simple Scheduling with cost/emissions trade-offs
+- 📚 **Validation & Transparency:** Comprehensive sources (IEA, EPA, GHG Protocol) with ±15-25% uncertainty ranges
 - ✨ **Smart Win-Win Optimization:** Only accepts changes that improve comfort AND/OR energy vs baseline
 - ⚡ **ML Models Tab Optimization:** 80% faster loading with collapsible accordions
-- 📊 **Enhanced Analytics:** Clear visualization of improvement scoring system
-- 🎯 **Intelligent Fallback:** Never forces suboptimal changes - keeps baseline when appropriate
-- 🔄 **Two Optimization Strategies:** Penalty-based (simulator) and Smart Win-Win (portfolio analytics)
 
 Notes:
 - **By default:** The app runs with Random Forest (via scikit-learn), which is fully functional and available in all deployments
@@ -332,14 +336,43 @@ Portfolio-wide Smart Win-Win optimization with real ML predictions:
 - **Never Degrades:** Falls back to baseline if optimization finds no improvement
 
 ### Sustainability of AI Analysis
-Comprehensive carbon footprint assessment using industry-standard methodologies:
+Comprehensive carbon footprint assessment with regional sensitivity and validation:
+
+**Regional Grid Sensitivity Analysis (NEW):**
+- **8 Power Grid Profiles:** Nordic (50 g/kWh), France (80), US West (200), Global Avg (475), US Midwest (650), China (600), Australia (750), India (900)
+- **ROI Variation:** 3× in clean grids (Nordic) to 18× in carbon-intensive grids (India, Australia)
+- **Deployment Insights:** Carbon-heavy grids see 10-18× larger absolute CO2 reductions, making AI optimization even more impactful
+- **Sources:** [IEA World Energy Outlook (2024)](https://www.iea.org/), [EPA eGRID (2024)](https://www.epa.gov/egrid), [European Environment Agency (2024)](https://www.eea.europa.eu/)
+- **All Regions Positive:** AI optimization shows net environmental benefit across ALL grid intensities
+
+**Hardware-Specific Embodied Carbon (NEW):**
+- **CPU Servers:** 1,500 kg CO2e / 4-year lifecycle (Dell PowerEdge, HP ProLiant)
+- **GPU Servers:** 3,000 kg CO2e / 4-year lifecycle (NVIDIA A100/H100) - 2× CPU due to GPU manufacturing
+- **Edge Devices:** 400 kg CO2e / 5-year lifecycle (IoT gateways, Raspberry Pi)
+- **Incremental Allocation:** 5-10% of existing server capacity attributed to AI workload
+- **Sources:** Dell Product Carbon Footprints (2024), Apple Environmental Reports (2024), Google Cloud Carbon Footprint Methodology
+
+**Alternative Approaches Comparison (NEW):**
+| Approach | Savings % | Cost/Year | Own Emissions | Net Benefit |
+|----------|-----------|-----------|---------------|-------------|
+| No Optimization | 0% | $0 | 0 kg | 0 kg |
+| Manual Technician Tuning | 8% | $2,000 | 80 kg (truck rolls) | Low |
+| Simple Time Scheduling | 15% | $500 | 0 kg | Medium |
+| **AI Optimization (This System)** | **20-25%** | **~$5,000** | **100-200 kg** | **High (2-3× better)** |
+
+**Uncertainty Quantification & Validation (NEW):**
+- **Carbon Intensity Ranges:** ±15-25% uncertainty based on grid mix variability
+- **Training Time Variance:** ±30% by hardware (CPU vs GPU, clock speeds, cooling)
+- **Known Limitations:** Network transfer costs (<1%), marginal vs average emissions (2-3× difference at peak), data storage (~0.5-2 kg CO2/TB/year)
+- **Transparent Sources:** Full citations to IEA, EPA, GHG Protocol, ML CO2 Impact Calculator
+- **Conservative Assumptions:** Always-on servers, no model compression, worst-case PUE values
 
 **Training Emissions Methodology:**
 - Based on [ML CO2 Impact Calculator](https://mlco2.github.io/impact/) framework and [Energy and Policy Considerations for Deep Learning in NLP](https://arxiv.org/abs/1906.02243)
 - Full ML pipeline: data preprocessing (10%), cross-validation (40%), hyperparameter tuning (40%), final training (10%)
 - Hardware profiles: CPU training (100W TDP for scikit-learn), GPU training (250W for TensorFlow/PyTorch on RTX 3090 class)
 - Time estimates: 2 hours for 15k samples, 24 hours for 5M samples with weekly retraining
-- Regional grid intensity: Using [EPA eGRID](https://www.epa.gov/egrid) emission factors (varies 0.2-0.9 kg CO₂/kWh by region)
+- **Regional grid intensity:** Now uses region-specific values (50-900 g CO2/kWh) instead of fixed global average
 
 **Inference Emissions Methodology:**
 - Server power based on [SPECpower_ssj2008](https://www.spec.org/power_ssj2008/) benchmarks at realistic utilization
@@ -349,36 +382,30 @@ Comprehensive carbon footprint assessment using industry-standard methodologies:
 - Always-on operational model (8760 hours/year) for realistic total emissions
 
 **Infrastructure Allocation:**
-- Following [GHG Protocol ICT Sector Guidance](https://ghgprotocol.org/ict-sector-guidance) and Scope 3 standards
+- Following [GHG Protocol Scope 3](https://ghgprotocol.org/scope-3-technical-calculation-guidance) and ICT Sector Guidance
 - Incremental approach: 5-10% of existing BMS server capacity (avoids full hardware attribution)
-- Embodied emissions: Manufacturing, shipping, end-of-life using [Circular Computing LCA](https://circularcomputing.com/news/carbon-footprint-laptop/)
-- 5-year amortization period for hardware lifecycle emissions
+- **Hardware-specific embodied emissions:** Now accounts for CPU/GPU/Edge device manufacturing differences
+- Amortization: 4-5 years for hardware lifecycle emissions
 
 **Scenario Scaling Analysis:**
-- Small deployment (3 buildings, 30 zones): 97% infrastructure overhead, 3% compute workload
-- Large deployment (1000 buildings, 10,000 zones): 66% compute-intensive, 34% infrastructure
-- Demonstrates how fixed costs amortize across fleet size
+- Small deployment (3 buildings, 15 zones): Infrastructure-dominated (~97%), minimal compute
+- Large deployment (1000 buildings, 10,000 zones): Compute-intensive (~66%), economies of scale
+- Demonstrates how fixed costs amortize across fleet size and training frequency impacts
 
 **Positive Carbon ROI with Evidence:**
 - **HVAC Baseline:** Typically 40% of commercial building energy per [U.S. DOE Buildings Data](https://www.energy.gov/eere/buildings/commercial-buildings-integration)
 - **AI Impact:** 20-40% HVAC energy reduction validated in [Smart HVAC studies](https://www.mdpi.com/1996-1073/14/21/7249)
 - **Emissions Payback:** AI operational cost offset within 2-4 weeks
-- **Net Benefit:** 50-100x carbon reduction (energy savings / AI emissions)
-- **All Scenarios Positive:** Even small deployments show net environmental benefit
-
-**Transparent Methodology:**
-- Open calculations following [Green Software Foundation](https://greensoftware.foundation/) principles
-- Detailed breakdowns: training, inference, infrastructure components
-- Conservative assumptions (e.g., always-on servers, no model compression gains)
-- References to peer-reviewed research and industry standards
+- **Net Benefit:** 50-100× carbon reduction (energy savings / AI emissions) across all regions
+- **All Scenarios Positive:** Even small deployments in clean grids show net environmental benefit
 
 **Key Resources:**
+- [IEA World Energy Outlook](https://www.iea.org/) - Regional grid carbon intensity (2024)
+- [EPA eGRID](https://www.epa.gov/egrid) - US regional emissions data (2024)
 - [ML CO2 Impact](https://mlco2.github.io/impact/) - Training emissions calculator
-- [CodeCarbon](https://codecarbon.io/) - Real-time carbon tracking for ML
-- [Cloud Carbon Footprint](https://www.cloudcarbonfootprint.org/) - Cloud infrastructure emissions
-- [Green Algorithms](https://www.green-algorithms.org/) - Research computing carbon calculator
-- [ASHRAE 90.1](https://www.ashrae.org/technical-resources/bookstore/standard-90-1) - Building energy efficiency standards
+- [GreenAlgorithms](https://www.green-algorithms.org/) - Computational carbon footprint
 - [GHG Protocol](https://ghgprotocol.org/) - Corporate carbon accounting standards
+- [ASHRAE 90.1](https://www.ashrae.org/technical-resources/bookstore/standard-90-1) - Building energy efficiency standards
 
 ---
 
