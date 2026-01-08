@@ -1016,6 +1016,55 @@ def update_sidebar(view_mode, selected_building):
     
     return building_style, model_style, options, options[0]['value']
 
+# --- A2. Model Selector Options Updater (Dynamic based on library availability) ---
+@app.callback(
+    [Output("model-selector", "options"),
+     Output("model-selector", "value"),
+     Output("model-choice", "options")],
+    [Input("view-selector", "value")]  # Trigger on any view change (runs once at startup)
+)
+def update_model_options(_):
+    """
+    Dynamically update model selector options based on available libraries.
+    Disables TensorFlow and PyTorch options if libraries are not installed.
+    """
+    # Base options with availability indicators
+    selector_options = []
+    radio_options = []
+
+    # Random Forest is always available (scikit-learn is a core dependency)
+    selector_options.append({'label': '🌳 Random Forest', 'value': 'RF'})
+    radio_options.append({'label': 'Random Forest', 'value': 'RF'})
+
+    # TensorFlow Neural Network
+    if TF_AVAILABLE:
+        selector_options.append({'label': '🧠 TensorFlow NN', 'value': 'NN'})
+        radio_options.append({'label': 'Neural Network (TF)', 'value': 'NN'})
+    else:
+        selector_options.append({'label': '🧠 TensorFlow NN (Not Available)', 'value': 'NN', 'disabled': True})
+        radio_options.append({'label': 'Neural Network (TF) - Not Available', 'value': 'NN', 'disabled': True})
+
+    # PyTorch Neural Network
+    if TORCH_AVAILABLE:
+        selector_options.append({'label': '🔥 PyTorch NN', 'value': 'PT'})
+        radio_options.append({'label': 'PyTorch', 'value': 'PT'})
+    else:
+        selector_options.append({'label': '🔥 PyTorch NN (Not Available)', 'value': 'PT', 'disabled': True})
+        radio_options.append({'label': 'PyTorch - Not Available', 'value': 'PT', 'disabled': True})
+
+    # Add "Compare All" option for radio buttons (only include available models)
+    radio_options.append({'label': 'Compare All', 'value': 'Both'})
+
+    # Set default value to first available model
+    if TORCH_AVAILABLE:
+        default_value = 'PT'  # Prefer PyTorch if available
+    elif TF_AVAILABLE:
+        default_value = 'NN'  # Fall back to TensorFlow
+    else:
+        default_value = 'RF'  # Fall back to Random Forest
+
+    return selector_options, default_value, radio_options
+
 # --- B. Main Page Content Renderer ---
 @app.callback(
     Output("page-content", "children"),
