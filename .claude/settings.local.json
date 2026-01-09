@@ -4,7 +4,10 @@
       "Bash(cat:*)",
       "Bash(.venv/Scripts/python.exe:*)",
       "Bash(git add:*)",
-      "Bash(git commit -m \"$\\(cat <<''EOF''\nOptimize performance with batch predictions and caching\n\n- Pre-load training data globally to avoid redundant file reads\n- Implement batch predictions for baseline calculations \\(15x faster\\)\n- Add CO2 calculation caching with 5-minute TTL\n- Define optimization constants \\(CANDIDATE_SETPOINTS, COMFORT_MIN/MAX\\) as globals\n- Refactor train_models functions to accept optional pre-loaded data\n- Add project specification document\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nOptimize performance with batch predictions and caching\n\n- Pre-load training data globally to avoid redundant file reads\n- Implement batch predictions for baseline calculations \\(15x faster\\)\n- Add CO2 calculation caching with 5-minute TTL\n- Define optimization constants \\(CANDIDATE_SETPOINTS, COMFORT_MIN/MAX\\) as globals\n- Refactor train_models functions to accept optional pre-loaded data\n- Add project specification document\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit:*)",
+      "Bash(python3:*)",
+      "Bash(git push:*)"
     ]
   }
 }

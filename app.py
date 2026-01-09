@@ -111,7 +111,7 @@ def _generate_training_data_fallback(n_rows: int = 15000):
     # 2. Energy Consumption (kWh)
     # Energy is proportional to the "gap" the HVAC tries to close + baseload
     base_load = 0.5 # Fans, lights
-    hvac_kwh = np.abs(hvac_power) * 5 # Factor to convert 'effort' to kWh
+    hvac_kwh = np.abs(hvac_power) * 5 # Factor to convert 'effort' to kWh (energy)
     total_energy = base_load + hvac_kwh + (0.2 * occupancy) + np.random.normal(0, 0.05, n_rows)
 
     df = pd.DataFrame({
@@ -119,8 +119,8 @@ def _generate_training_data_fallback(n_rows: int = 15000):
         'Prev_Indoor_Temp': prev_indoor_temp,
         'Setpoint': setpoint,
         'Occupancy': occupancy,
-        'Target_Temp': next_indoor_temp,   # Target 1
-        'Target_Energy': total_energy      # Target 2
+        'Target_Temp': next_indoor_temp,   # Target 1 (Temperature)
+        'Target_Energy': total_energy      # Target 2 (Energy)
     })
     
     X = df[['Outdoor_Temp', 'Prev_Indoor_Temp', 'Setpoint', 'Occupancy']].values
