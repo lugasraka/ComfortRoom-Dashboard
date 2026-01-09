@@ -21,7 +21,7 @@ Test the app directly in your browser — no installation required!
 - 🎛️ **Digital Twin Simulator** — Test "what-if" scenarios for individual zones
 - 📈 **Three ML Models** — Random Forest, TensorFlow NN, PyTorch NN with full metrics
 
-<img width="2540" height="1266" alt="{1A14A202-F8C6-49BD-8603-719E36199590}" src="https://github.com/user-attachments/assets/45388a33-9540-4f7b-929b-b6b6853da848" />
+![Demo Animation](DemoAnimation.gif)
 
 
 ---
