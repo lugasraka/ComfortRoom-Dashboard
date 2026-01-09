@@ -1019,8 +1019,7 @@ def update_sidebar(view_mode, selected_building):
 # --- A2. Model Selector Options Updater (Dynamic based on library availability) ---
 @app.callback(
     [Output("model-selector", "options"),
-     Output("model-selector", "value"),
-     Output("model-choice", "options")],
+     Output("model-selector", "value")],
     [Input("view-selector", "value")]  # Trigger on any view change (runs once at startup)
 )
 def update_model_options(_):
@@ -1063,7 +1062,7 @@ def update_model_options(_):
     else:
         default_value = 'RF'  # Fall back to Random Forest
 
-    return selector_options, default_value, radio_options
+    return selector_options, default_value
 
 # --- B. Main Page Content Renderer ---
 @app.callback(
@@ -2379,15 +2378,26 @@ def render_page(view_mode, selected_building, selected_zone_name, selected_model
             })
         
         df_metrics = pd.DataFrame(building_metrics)
-        
+
         # Portfolio aggregates
         total_current_energy = df_metrics['current_energy_kwh'].sum()
         total_optimal_energy = df_metrics['optimal_energy_kwh'].sum()
         total_savings = total_current_energy - total_optimal_energy
         savings_pct = (total_savings / total_current_energy * 100) if total_current_energy > 0 else 0
-        
-        avg_current_comfort = df_metrics['current_comfort_pct'].mean()
-        avg_optimal_comfort = df_metrics['optimal_comfort_pct'].mean()
+
+        # Comfort calculations: ONLY for occupied zones (comfort only matters when people are present)
+        df_occupied = df_metrics[df_metrics['occupied'] == True]
+        total_zones = len(df_metrics)
+        occupied_zones = len(df_occupied)
+
+        if occupied_zones > 0:
+            avg_current_comfort = df_occupied['current_comfort_pct'].mean()
+            avg_optimal_comfort = df_occupied['optimal_comfort_pct'].mean()
+        else:
+            # Fallback if no zones are occupied (unlikely but handle gracefully)
+            avg_current_comfort = 0
+            avg_optimal_comfort = 0
+
         comfort_improvement = avg_optimal_comfort - avg_current_comfort
         
         comparison_data = pd.DataFrame({
@@ -2407,10 +2417,10 @@ def render_page(view_mode, selected_building, selected_zone_name, selected_model
             texttemplate='%{text}%',
             width=0.5
         ))
-        fig_comfort.add_hline(y=90, line_dash="dash", line_color="gray", 
+        fig_comfort.add_hline(y=90, line_dash="dash", line_color="gray",
                              annotation_text="Industry Target: 90%", annotation_position="right")
         fig_comfort.update_layout(
-            title="Comfort Compliance: Time in Optimal Temperature Range (21-23°C)",
+            title=f"Comfort Compliance: Time in Optimal Temperature Range (21-23°C)<br><sub>Based on {occupied_zones} occupied zones (out of {total_zones} total zones)</sub>",
             yaxis_title="% Time in Comfort Zone",
             yaxis_range=[0, 100],
             height=450,
@@ -2442,13 +2452,25 @@ def render_page(view_mode, selected_building, selected_zone_name, selected_model
             font=dict(size=12)
         )
         
-        # Chart 3: Tradeoff Analysis
-        df_buildings = df_metrics.groupby('building').agg({
+        # Chart 3: Tradeoff Analysis (comfort only for occupied zones, energy for all zones)
+        # For comfort: use only occupied zones per building
+        df_comfort_by_building = df_occupied.groupby('building').agg({
             'current_comfort_pct': 'mean',
-            'optimal_comfort_pct': 'mean',
+            'optimal_comfort_pct': 'mean'
+        }).reset_index()
+
+        # For energy: use all zones (energy consumed regardless of occupancy)
+        df_energy_by_building = df_metrics.groupby('building').agg({
             'current_energy_kwh': 'sum',
             'optimal_energy_kwh': 'sum'
         }).reset_index()
+
+        # Merge both dataframes
+        df_buildings = df_energy_by_building.merge(df_comfort_by_building, on='building', how='left')
+
+        # Fill NaN values for buildings with no occupied zones (shouldn't happen in practice)
+        df_buildings['current_comfort_pct'].fillna(0, inplace=True)
+        df_buildings['optimal_comfort_pct'].fillna(0, inplace=True)
         
         fig_tradeoff = go.Figure()
         fig_tradeoff.add_trace(go.Scatter(
@@ -2478,9 +2500,9 @@ def render_page(view_mode, selected_building, selected_zone_name, selected_model
                 showarrow=True, arrowhead=2, arrowsize=1, arrowwidth=2, arrowcolor='gray'
             )
         fig_tradeoff.update_layout(
-            title="Comfort vs Energy Tradeoff Analysis by Building",
+            title="Comfort vs Energy Tradeoff Analysis by Building<br><sub>Comfort based on occupied zones only</sub>",
             xaxis_title="Energy Cost (kWh/day)",
-            yaxis_title="Comfort Compliance (%)",
+            yaxis_title="Comfort Compliance (%) - Occupied Zones",
             yaxis_range=[0, 100],
             height=500,
             margin=dict(l=50, r=50, t=80, b=50),
@@ -2549,13 +2571,14 @@ def render_page(view_mode, selected_building, selected_zone_name, selected_model
                 dbc.CardBody([
                     html.P([
                         html.Strong("What this shows: "),
-                        "Comfort compliance score (0-100%) based on how close predicted temperatures are to the ideal range (21-23°C). ",
+                        f"Comfort compliance score (0-100%) for {occupied_zones} occupied zones (out of {total_zones} total zones), based on how close predicted temperatures are to the ideal range (21-23°C). ",
                         "Scores decrease by 20% per degree outside this range. ",
-                        "Baseline uses a static 22°C setpoint; AI uses penalty-based optimization to find the best setpoint for each zone."
+                        "Baseline uses a static 22°C setpoint; AI uses penalty-based optimization to find the best setpoint for each zone. ",
+                        html.Strong("Comfort is only measured for occupied zones where people are present.")
                     ], className="mb-2"),
                     html.P([
                         html.Strong("Key Takeaway: "),
-                        f"AI optimization {'improves' if comfort_improvement >= 0 else 'adjusts'} comfort compliance by {abs(comfort_improvement):.1f} percentage points. ",
+                        f"AI optimization {'improves' if comfort_improvement >= 0 else 'adjusts'} comfort compliance by {abs(comfort_improvement):.1f} percentage points for occupied spaces. ",
                         "The penalty-based approach prioritizes keeping zones in the 21-23°C comfort range, ",
                         "especially for occupied spaces."
                     ], className="text-success mb-0")
@@ -2653,7 +2676,8 @@ def render_page(view_mode, selected_building, selected_zone_name, selected_model
                                  "For temperatures outside this range, the score decreases by 20% per degree of deviation. ",
                                  "Example: 24°C → 80%, 25°C → 60%, 20°C → 80%. This provides realistic, gradual metrics."]),
                         html.Li([html.Strong("Portfolio-Wide: "),
-                                 "Average comfort scores across all zones, then group by building for visualization."]),
+                                 f"Average comfort scores across ONLY occupied zones ({occupied_zones} out of {total_zones} zones). ",
+                                 "Comfort is only measured where people are actually present, then grouped by building for visualization."]),
                         html.Li([html.Strong("Baseline vs AI: "),
                                  "Baseline uses static 22°C (typically 100% comfort); AI uses optimized setpoint that minimizes penalty-weighted cost while maintaining or improving comfort."]),
                     ], className="mb-3"),
